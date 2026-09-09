@@ -1,0 +1,31 @@
+extends: portfolio_arpg.yaml
+name: 余烬前线：人工初稿（用于前后对比）
+
+players:
+  vanguard:
+    stats:
+      attack: 54
+  arcanist:
+    stats:
+      attack: 64
+
+enemies:
+  common:
+    stats:
+      hp: 460
+    growth:
+      hp: 0.06
+  elite:
+    stats:
+      attack: 34
+      hp: 1450
+    growth:
+      attack: 0.054
+      hp: 0.06
+  boss:
+    stats:
+      attack: 24
+      hp: 5200
+    growth:
+      attack: 0.053
+      hp: 0.06

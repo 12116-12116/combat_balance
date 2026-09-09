@@ -1,0 +1,272 @@
+name: 余烬前线：实时 PvE 战斗平衡研究
+version: "1.0"
+
+formula:
+  defense_k_base: 100
+  defense_k_per_level: 10
+  max_time: 150
+  max_events: 10000
+
+policies:
+  priority:
+    id: priority
+    name: 固定优先级
+    kind: priority
+    priority:
+      - battle_focus
+      - arcane_surge
+      - rapid_focus
+      - shield_wall
+      - evasive_step
+      - frost_barrier
+      - execution_slash
+      - aimed_shot
+      - meteor
+      - whirlwind
+      - rapid_fire
+      - fireball
+      - power_strike
+      - piercing_arrow
+      - arcane_bolt
+      - crushing_blow
+      - venom_spit
+      - shadow_bolt
+      - monster_attack
+      - basic_attack
+  burst:
+    id: burst
+    name: 爆发对齐
+    kind: burst
+    priority:
+      - battle_focus
+      - arcane_surge
+      - rapid_focus
+      - execution_slash
+      - aimed_shot
+      - meteor
+      - whirlwind
+      - rapid_fire
+      - fireball
+      - power_strike
+      - piercing_arrow
+      - arcane_bolt
+      - shield_wall
+      - evasive_step
+      - frost_barrier
+      - basic_attack
+    burst_tags: [burst]
+    hold_window: 1.5
+  conservative:
+    id: conservative
+    name: 保守生存
+    kind: conservative
+    priority:
+      - shield_wall
+      - evasive_step
+      - frost_barrier
+      - battle_focus
+      - rapid_focus
+      - arcane_surge
+      - execution_slash
+      - aimed_shot
+      - meteor
+      - whirlwind
+      - rapid_fire
+      - fireball
+      - power_strike
+      - piercing_arrow
+      - arcane_bolt
+      - basic_attack
+    hp_threshold: 0.4
+    resource_floor: 0.2
+
+players:
+  vanguard:
+    id: vanguard
+    name: 铁卫
+    archetype: 高生存、稳定输出
+    stats:
+      attack: 68
+      defense: 55
+      hp: 760
+      accuracy: 0.98
+      dodge: 0.04
+      crit_rate: 0.12
+      crit_damage: 0.5
+      resource_max: 60
+      resource_regen: 5
+    growth: {attack: 0.055, defense: 0.055, hp: 0.06, resource_max: 0.01, resource_regen: 0.005}
+    default_policy: priority
+    basic_attack:
+      {id: basic_attack, name: 普通攻击, multiplier: 1.0, cooldown: 0, cast_time: 0.35, recovery: 0.65, hit_rate: 0.96, priority: 999}
+    skills:
+      - {id: power_strike, name: 强力斩, multiplier: 1.9, cooldown: 5.5, cast_time: 0.55, recovery: 0.55, hit_rate: 0.94, resource_cost: 18, priority: 30}
+      - {id: whirlwind, name: 旋风斩, multiplier: 2.7, cooldown: 10, cast_time: 0.8, recovery: 0.6, hit_rate: 0.9, resource_cost: 30, priority: 20, tags: [burst]}
+      - id: battle_focus
+        name: 战意
+        multiplier: 0
+        cooldown: 18
+        cast_time: 0.2
+        recovery: 0.3
+        hit_rate: 1
+        resource_cost: 12
+        priority: 10
+        tags: [burst_buff]
+        apply_buff: {id: battle_focus_buff, name: 战意, duration: 6, modifiers: {attack_pct: 0.22}}
+      - id: shield_wall
+        name: 盾墙
+        multiplier: 0
+        cooldown: 20
+        cast_time: 0.15
+        recovery: 0.35
+        hit_rate: 1
+        resource_cost: 15
+        priority: 5
+        tags: [defensive]
+        apply_buff: {id: shield_wall_buff, name: 盾墙, duration: 5, modifiers: {defense_pct: 0.45, damage_taken_pct: -0.12}}
+
+  ranger:
+    id: ranger
+    name: 风痕游侠
+    archetype: 高暴击、持续输出、高波动
+    stats:
+      attack: 57
+      defense: 37
+      hp: 610
+      accuracy: 1.02
+      dodge: 0.11
+      crit_rate: 0.25
+      crit_damage: 0.75
+      resource_max: 80
+      resource_regen: 6
+    growth: {attack: 0.055, defense: 0.052, hp: 0.059, resource_max: 0.01, resource_regen: 0.005}
+    default_policy: priority
+    basic_attack:
+      {id: basic_attack, name: 快速射击, multiplier: 0.92, cooldown: 0, cast_time: 0.25, recovery: 0.55, hit_rate: 0.97, priority: 999}
+    skills:
+      - {id: piercing_arrow, name: 穿云箭, multiplier: 1.35, cooldown: 4.5, cast_time: 0.45, recovery: 0.4, hit_rate: 0.96, crit_bonus: 0.08, resource_cost: 16, priority: 30}
+      - {id: rapid_fire, name: 疾风连射, multiplier: 1.8, cooldown: 9, cast_time: 0.7, recovery: 0.45, hit_rate: 0.92, crit_bonus: 0.12, resource_cost: 30, priority: 20, tags: [burst]}
+      - id: rapid_focus
+        name: 鹰眼
+        multiplier: 0
+        cooldown: 18
+        cast_time: 0.15
+        recovery: 0.25
+        hit_rate: 1
+        resource_cost: 10
+        priority: 10
+        tags: [burst_buff]
+        apply_buff: {id: rapid_focus_buff, name: 鹰眼, duration: 6, modifiers: {attack_pct: 0.08, crit_rate_flat: 0.15}}
+      - id: evasive_step
+        name: 闪身
+        multiplier: 0
+        cooldown: 20
+        cast_time: 0.1
+        recovery: 0.25
+        hit_rate: 1
+        resource_cost: 14
+        priority: 5
+        tags: [defensive]
+        apply_buff: {id: evasive_step_buff, name: 闪身, duration: 5, modifiers: {dodge_flat: 0.22}}
+
+  arcanist:
+    id: arcanist
+    name: 星火术士
+    archetype: 资源受限、周期爆发
+    stats:
+      attack: 70
+      defense: 31
+      hp: 570
+      accuracy: 1.0
+      dodge: 0.05
+      crit_rate: 0.16
+      crit_damage: 0.6
+      resource_max: 100
+      resource_regen: 7
+    growth: {attack: 0.054, defense: 0.052, hp: 0.059, resource_max: 0.012, resource_regen: 0.006}
+    default_policy: burst
+    basic_attack:
+      {id: basic_attack, name: 法杖射击, multiplier: 0.82, cooldown: 0, cast_time: 0.35, recovery: 0.65, hit_rate: 0.96, priority: 999}
+    skills:
+      - {id: arcane_bolt, name: 奥术飞弹, multiplier: 1.45, cooldown: 4, cast_time: 0.5, recovery: 0.4, hit_rate: 0.96, resource_cost: 20, priority: 30}
+      - {id: meteor, name: 陨星, multiplier: 2.35, cooldown: 11, cast_time: 1.0, recovery: 0.5, hit_rate: 0.9, crit_bonus: 0.08, resource_cost: 42, priority: 20, tags: [burst]}
+      - id: arcane_surge
+        name: 奥能涌动
+        multiplier: 0
+        cooldown: 20
+        cast_time: 0.25
+        recovery: 0.25
+        hit_rate: 1
+        resource_cost: 15
+        priority: 10
+        tags: [burst_buff]
+        apply_buff: {id: arcane_surge_buff, name: 奥能涌动, duration: 7, modifiers: {attack_pct: 0.28, crit_damage_flat: 0.2}}
+      - id: frost_barrier
+        name: 霜甲
+        multiplier: 0
+        cooldown: 22
+        cast_time: 0.2
+        recovery: 0.3
+        hit_rate: 1
+        resource_cost: 18
+        priority: 5
+        tags: [defensive]
+        apply_buff: {id: frost_barrier_buff, name: 霜甲, duration: 6, modifiers: {defense_pct: 0.55, damage_taken_pct: -0.1}}
+
+enemies:
+  common:
+    id: common
+    name: 荒原猎兽
+    archetype: 普通怪
+    stats: {attack: 23, defense: 28, hp: 620, accuracy: 0.94, dodge: 0.03, crit_rate: 0.05, crit_damage: 0.4}
+    growth: {attack: 0.054, defense: 0.054, hp: 0.0545}
+    basic_attack: {id: monster_attack, name: 撕咬, multiplier: 0.8, cooldown: 0, cast_time: 0.55, recovery: 0.85, hit_rate: 0.92, priority: 999}
+    skills: []
+  elite:
+    id: elite
+    name: 黑岩守卫
+    archetype: 精英怪
+    stats: {attack: 65, defense: 42, hp: 1600, accuracy: 0.96, dodge: 0.05, crit_rate: 0.08, crit_damage: 0.45}
+    growth: {attack: 0.06, defense: 0.055, hp: 0.0517}
+    basic_attack: {id: monster_attack, name: 巨斧挥击, multiplier: 0.72, cooldown: 0, cast_time: 0.7, recovery: 1.0, hit_rate: 0.9, priority: 999}
+    skills:
+      - {id: crushing_blow, name: 震地重击, multiplier: 1.6, cooldown: 8, cast_time: 1.0, recovery: 0.8, hit_rate: 0.86, crit_bonus: 0.05, priority: 20, tags: [burst]}
+  boss:
+    id: boss
+    name: 暮色巨像
+    archetype: Boss
+    stats: {attack: 40, defense: 55, hp: 5150, accuracy: 0.98, dodge: 0.04, crit_rate: 0.1, crit_damage: 0.5}
+    growth: {attack: 0.057, defense: 0.055, hp: 0.0518}
+    basic_attack: {id: monster_attack, name: 巨像横扫, multiplier: 0.52, cooldown: 0, cast_time: 0.9, recovery: 1.3, hit_rate: 0.9, priority: 999}
+    skills:
+      - {id: shadow_bolt, name: 暮光冲击, multiplier: 1.15, cooldown: 10, cast_time: 1.1, recovery: 1.0, hit_rate: 0.85, crit_bonus: 0.03, priority: 20, tags: [burst]}
+
+study:
+  level_checkpoints: [1, 10, 20, 30, 40, 50]
+  report_runs: 1000
+  default_player: vanguard
+  default_enemy: elite
+  default_policy: priority
+  targets:
+    - {enemy_id: common, ttk_min: 8, ttk_max: 12, win_rate_min: 0.95, win_rate_max: 1.0}
+    - {enemy_id: elite, ttk_min: 25, ttk_max: 35, win_rate_min: 0.70, win_rate_max: 0.85}
+    - {enemy_id: boss, ttk_min: 90, ttk_max: 120, win_rate_min: 0.45, win_rate_max: 0.60}
+
+optimization:
+  levels: [30]
+  stage1_candidates: 512
+  stage1_runs: 300
+  stage2_candidates: 256
+  stage2_runs: 1000
+  final_runs: 10000
+  parameters:
+    - {path: players.vanguard.stats.attack, minimum: 62, maximum: 74}
+    - {path: players.vanguard.skills.1.multiplier, minimum: 2.3, maximum: 3.1}
+    - {path: players.ranger.skills.1.multiplier, minimum: 1.5, maximum: 2.2}
+    - {path: players.arcanist.stats.attack, minimum: 65, maximum: 76}
+    - {path: players.arcanist.skills.1.multiplier, minimum: 2.0, maximum: 3.0}
+    - {path: enemies.common.stats.hp, minimum: 560, maximum: 680}
+    - {path: enemies.elite.stats.hp, minimum: 1450, maximum: 1750}
+    - {path: enemies.elite.stats.attack, minimum: 55, maximum: 75}
+    - {path: enemies.boss.stats.hp, minimum: 4700, maximum: 5600}
+    - {path: enemies.boss.stats.attack, minimum: 36, maximum: 45}
